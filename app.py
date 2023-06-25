@@ -53,24 +53,26 @@ def main():
             context.user_data['menu'] = 'start'
             return ConversationHandler.END
         else:
-            context.bot.send_message(chat_id=update.effective_chat.id,
-                                     text="<b>Добро пожаловать, я бот-гид по мероприятиям.\n</b>"
-                                          "<b>Прежде чем начать, давайте пройдем короткую процедуру регистрации.\n</b>"
-                                          "<b>Укажите Имя и Фамилию</b>",
-                                     parse_mode=telegram.ParseMode.HTML,
-                                     reply_markup=ReplyKeyboardRemove()
-                                     )
+            context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text="<b>Добро пожаловать, я бот-гид по мероприятиям.\n</b>"
+                     "<b>Прежде чем начать, давайте пройдем короткую процедуру регистрации.\n</b>"
+                     "<b>Укажите Имя и Фамилию</b>",
+                parse_mode=telegram.ParseMode.HTML,
+                reply_markup=ReplyKeyboardRemove()
+            )
             context.user_data['menu'] = 'start'
             return GETTING_NAME
 
     def get_name(update: Update, context: CallbackContext):
         check_name = FullNameCheck().check(update.message.text)
         if not check_name:
-            context.bot.send_message(chat_id=update.effective_chat.id,
-                                     text="<b>Пожалуйста, введите корректное имя и фамилию.\n</b>",
-                                     parse_mode=telegram.ParseMode.HTML,
-                                     reply_markup=ReplyKeyboardRemove()
-                                     )
+            context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text="<b>Пожалуйста, введите корректное имя и фамилию.\n</b>",
+                parse_mode=telegram.ParseMode.HTML,
+                reply_markup=ReplyKeyboardRemove()
+            )
             return GETTING_NAME
         else:
             tg_user_id = update.message.from_user.id
@@ -122,14 +124,12 @@ def main():
         else:
             if context.user_data['menu'] == 'get_events':
                 context.user_data['event_id'] = update.callback_query.data.split('_')[1]
-            print(context.user_data['event_id'])
-
-            update.callback_query.edit_message_text("Добро пожаловать на мероприятие.\n"
-                                                    "Вы можете получить программу мероприятия и задать вопросы выступающим,\n"
-                                                    " пообщаться с другими участниками а также сделать донат организаторам.\n",
-                                                    reply_markup=InlineKeyboardMarkup(start_button,
-                                                                                      one_time_keyboard=True)
-                                                    )
+            update.callback_query.edit_message_text(
+                "Добро пожаловать на мероприятие.\n"
+                "Вы можете получить программу мероприятия и задать вопросы выступающим,\n"
+                " пообщаться с другими участниками а также сделать донат организаторам.\n",
+                reply_markup=InlineKeyboardMarkup(start_button, one_time_keyboard=True)
+            )
             context.user_data['menu'] = 'event_meny'
 
     def get_program(update, context):
@@ -179,10 +179,7 @@ def main():
             current_user = get_current_user(update.message.from_user.id)
             current_speaker = get_current_speaker(context.user_data['selected_speaker'].split('_')[1])
             create_question(current_user, current_speaker, context.user_data['question'])
-
-            update.message.reply_text(
-                "Ваш вопрос отправлен спикеру",
-                parse_mode="HTML")
+            update.message.reply_text("Ваш вопрос отправлен спикеру", parse_mode="HTML")
             quest_dict = {'Спикер': context.user_data['selected_speaker'], 'Вопрос': context.user_data['question']}
             print(quest_dict)
             context.user_data['menu'] = 'send_question'
@@ -247,7 +244,9 @@ def main():
             back_button = [[InlineKeyboardButton('Назад', callback_data='back')]]
             update.callback_query.edit_message_text(
                 "Прежде чем начать общение, пожалуйста расскажите о себе:",
-                parse_mode="HTML", reply_markup=InlineKeyboardMarkup(back_button, one_time_keyboard=True))
+                parse_mode="HTML",
+                reply_markup=InlineKeyboardMarkup(back_button, one_time_keyboard=True)
+            )
             context.user_data['menu'] = 'get_communication'
             return GETTING_BIO
         else:
@@ -259,9 +258,7 @@ def main():
         if not user_business_card:
             context.user_data['bio'] = update.message.text
             get_updated_contacts(tg_user_id, context.user_data['bio'])
-
             contact_button = [[InlineKeyboardButton('Получить контакты', callback_data='get_contacts')]]
-
             update.message.reply_text(
                 "Отлично! Теперь можете запросить контакты участников, которые вам интересны:",
                 parse_mode="HTML", reply_markup=InlineKeyboardMarkup(contact_button))
