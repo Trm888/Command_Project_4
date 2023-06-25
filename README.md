@@ -1,17 +1,22 @@
 #  meetup_storage
+Клиентская часть проекта meetup_storage
+Бот для хранения информации о митапах, позволяет получать информацию о митапах по запросу.
 
-## Требования к использованию
 
-Требуется [Python](https://www.python.org/downloads/) версии 3.7 или выше и установленный [pip](https://pip.pypa.io/en/stable/getting-started/). Для установки необходимых зависимостей используйте команду:  
-1. Для Unix/macOs:
-```commandline
-python -m pip install -r requirements.txt
+## Запуск
+
+- Скачайте код. Установите зависимости:
+```sh
+pip install -r requirements.txt
 ```
-2. Для Windows:
-```commandline
-py -m pip download --destination-directory DIR -r requirements.txt
+Выполнить миграцию: 
+```sh
+python3 manage.py migrate`
 ```
+Создайте файл с переменными окружения ".env", разместите его в той же директории, где и файл app.py, запишите туда данные в таком формате: ПЕРЕМЕННАЯ=значение.
 
-## Установка
+TG_TOKEN - токен телеграм бота, инструкция по созданию бота: https://medium.com/spidernitt/how-to-create-your-own-telegram-bot-63d1097999b6
 
-Выполнить миграцию: `python3 manage.py migrate`
+PAYMENT_TOKEN - токен для оплаты через телеграм.
+
+Требуется подключить оплату в настройках бота в BotFather. Инструкция: https://core.telegram.org/bots/payments#getting-a-token
