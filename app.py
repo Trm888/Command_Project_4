@@ -1,4 +1,5 @@
 import logging
+import threading
 import time
 
 import telegram
@@ -10,7 +11,8 @@ from telegram.ext import Updater, ConversationHandler, CommandHandler, CallbackQ
 
 from check_name import FullNameCheck
 from orm_functions import register_user, get_users, get_events_from_db, get_event_program, get_speakers_from_db, \
-    get_current_user, get_current_speaker, create_question, get_contacts_from_db, get_updated_contacts
+    get_current_user, get_current_speaker, create_question, get_contacts_from_db, get_updated_contacts, \
+    start_polling_alerts, create_donation
 
 
 def main():
@@ -216,6 +218,7 @@ def main():
             if not amount.isdigit():
                 update.message.reply_text('Введите число')
             else:
+                context.user_data['user_id'] = update.effective_chat.id
                 context.user_data['sum'] = int(amount) * 100
                 context.bot.send_invoice(
                     chat_id=update.effective_chat.id,
@@ -235,6 +238,8 @@ def main():
 
     def successful_payment_callback(update: Update, context: CallbackContext):
         context.bot.send_message(update.effective_chat.id, "Спасибо за пожертвование!")
+        current_user = get_current_user(context.user_data['user_id'])
+        create_donation(current_user, context.user_data['sum'])
         time.sleep(1)
         event_meny(update, context)
 
@@ -339,6 +344,9 @@ def main():
         dp.add_handler(PreCheckoutQueryHandler(precheckout_callback))
         dp.add_handler(MessageHandler(Filters.successful_payment, successful_payment_callback))
         set_bot_commands(bot_token)
+
+        alert_thread = threading.Thread(target=start_polling_alerts, args=(updater.bot,))
+        alert_thread.start()
 
         updater.start_polling()
         updater.idle()

@@ -56,3 +56,8 @@ class Donation(models.Model):
     )
     summ = models.FloatField(validators=[MinValueValidator(0)])
     time = models.DateTimeField(auto_now_add=True)
+
+
+class Alert(models.Model):
+    text = models.TextField()
+    send = models.BooleanField(default=False)

@@ -1,13 +1,15 @@
 import os
+import time
 from datetime import date
 
 import django
+import telegram
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'storage.settings')
 
 django.setup()
 
-from db.models import User, Event, Question
+from db.models import User, Event, Question, Alert, Donation
 
 
 def get_current_user(telegram_id):
@@ -51,3 +53,21 @@ def get_contacts_from_db():
 
 def get_updated_contacts(telegram_id, business_card):
     return User.objects.filter(chat_id=telegram_id).update(business_card=business_card)
+
+
+def create_donation(username, summ):
+    return Donation.objects.create(user=username, summ=summ)
+
+
+def start_polling_alerts(bot):
+    while True:
+        for alert in Alert.objects.all():
+            for user in User.objects.all():
+                try:
+                    bot.send_message(user.chat_id, alert.text)
+                except telegram.error.BadRequest as e:
+                    # Обработка исключения, когда отправка сообщения не удалась
+                    print(f"Не удалось отправить сообщение пользователю {user.chat_id}: {e}")
+                    continue
+                alert.delete()
+        time.sleep(10)
