@@ -66,7 +66,6 @@ def start_polling_alerts(bot):
                 try:
                     bot.send_message(user.chat_id, alert.text)
                 except telegram.error.BadRequest as e:
-                    # Обработка исключения, когда отправка сообщения не удалась
                     print(f"Не удалось отправить сообщение пользователю {user.chat_id}: {e}")
                     continue
                 alert.delete()
